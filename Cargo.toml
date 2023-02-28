@@ -1,0 +1,18 @@
+[package]
+name = "eventsink"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rocket = "0.5.0-rc.2"
+
+deadpool = "0.9.5"
+redis = { version = "0.22.3", features = ["streams"] }
+clap = "4.1.6"
+
+
+[dependencies.rocket_db_pools]
+version = "0.1.0-rc.2"
+features = ["deadpool_redis"]
