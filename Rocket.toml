@@ -3,3 +3,7 @@ address = "127.0.0.1"
 port = 8001
 debug = 1
 loglevel = "all"
+
+
+[default.databases.streamdb]
+url = "redis://127.0.0.1:6379/1"

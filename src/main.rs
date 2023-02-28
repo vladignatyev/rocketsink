@@ -1,60 +1,45 @@
-extern crate redis;
 #[macro_use]
 extern crate rocket;
 
-use redis::{Commands, RedisResult};
-use rocket::response::status;
+use deadpool_redis::{Config, redis::cmd};
+use deadpool_redis::Pool;
 use rocket::http::Status;
-use rocket::State;
+use rocket::response::status;
+use rocket_db_pools::{Database, deadpool_redis};
 
-#[get("/")]
-fn stat_route(redis: &State<RedisConnection>) -> &'static str {
-    "Hello, world!"
-}
+#[derive(Database)]
+#[database("streamdb")]
+struct StreamDb(Pool);
 
-#[post("/<key>")]
-fn sink_route(key: &str, redis: &State<RedisConnection>) -> String {
-    match redis.conn.get_connection() {
-        Ok(mut c) => {
-            let items: [(&str, &str); 2] = [
-                ("headers", ""),
-                ("request", "")
-            ];
+#[post("/<stream_name>")]
+async fn sink_route(stream_db: &StreamDb, stream_name: &str) -> status::Custom<&'static str> {
+    let items: [(&str, &str); 2] = [
+        ("headers", ""),
+        ("request", "")
+    ];
 
-            match c.xadd::<&str, &str, &str, &str, String>(key, "*", &items) {
-                Ok(_) => {
-                    // Status::Ok
-                    "OKay".to_string()
-                },
-                Err(e) => {
-                    // Status::InternalServerError(format!("{}",e))
-                    format!("{}", e)
-                }
-            }
-        }
-        Err(e) => {
-            // Status::InternalServerError
-            format!("{}", e)
-        }
+    let conn = stream_db.get().await;
+    if conn.is_err() {
+        return status::Custom(Status::InternalServerError, "No DB connection.");
+    }
+
+    match cmd("XADD")
+        .arg(stream_name)
+        .arg("*")
+        .arg(&items)
+        .query_async::<_, ()>(&mut conn.unwrap())
+        .await {
+        Ok(_) => status::Custom(Status::Created, ""),
+        Err(_) => status::Custom(Status::InternalServerError, "Write failed.")
     }
 }
 
 
-struct RedisConnection {
-    pub conn: redis::Client,
-}
-
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error> {
-    let redis_url = "redis://localhost:6379/0";
-
-    let redis_conn = redis::Client::open(redis_url)
-        .expect("Unable connect to Redis");
-
     let _rocket = rocket::build()
-        .manage(RedisConnection { conn: redis_conn })
+        .attach(StreamDb::init())
         .mount("/sink", routes![sink_route])
-        // .mount("/stat", routes![stat_route])
         .launch()
         .await?;
     Ok(())
