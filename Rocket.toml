@@ -1,10 +1,9 @@
-[default]
+[debug]
 address = "127.0.0.1"
 port = 8001
-debug = 0
-log_level = "critical"
-workers = 32
+debug = 1
+log_level = "debug"
+workers = 16
 
-
-[default.databases.redis]
+[debug.databases.redis]
 url = "redis://127.0.0.1:6379/1"

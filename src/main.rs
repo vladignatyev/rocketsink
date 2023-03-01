@@ -1,4 +1,4 @@
-mod sink;
+pub mod sink;
 
 #[macro_use]
 extern crate rocket;

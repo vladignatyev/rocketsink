@@ -1,11 +1,15 @@
 use std::net::IpAddr;
 
-use rocket::http::{HeaderMap, Status};
-use rocket_db_pools::deadpool_redis::redis::cmd;
+use rocket::http::{Status};
+
+#[allow(unused_imports)]
+use rocket_db_pools::deadpool_redis::redis::{AsyncCommands, cmd};
 
 use crate::sink::data::RequestHeaders;
 use crate::sink::db::StreamDb;
 use crate::sink::error::SinkError;
+
+use rocket::post;
 
 #[post("/<stream_name>")]
 pub async fn sink_route(stream_db: &StreamDb,

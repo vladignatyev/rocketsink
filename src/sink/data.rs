@@ -1,11 +1,19 @@
-use rocket::{Request, Response};
-use rocket::http::ext::IntoCollection;
+use rocket::Request;
+use rocket::http::HeaderMap;
 use rocket::request::{FromRequest, Outcome};
-use rocket::response::{Responder, status};
-use rocket::serde::{Serialize, Serializer};
 
 pub struct RequestHeaders {
     pub json: String,
+}
+
+#[inline]
+pub fn headermap_to_json_string(headers: &HeaderMap) -> serde_json::Result<String> {
+    let g = serde_json::Map::from_iter(
+        headers.iter().map(
+            |item| (item.name.to_string(),
+                    serde_json::Value::String(item.value.to_string()))
+        ));
+    serde_json::to_string(&g)
 }
 
 
@@ -14,14 +22,8 @@ impl<'r> FromRequest<'r> for RequestHeaders {
     type Error = ();
 
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
-        let g = serde_json::Map::from_iter(
-            request.headers().clone()
-                .into_iter().map(|item| {
-                (item.name.to_string(), serde_json::Value::String(item.value.to_string()))
-            }));
-
         Outcome::Success(RequestHeaders {
-            json: serde_json::to_string(&g).unwrap()
+            json: headermap_to_json_string(request.headers()).unwrap()
         })
     }
 }

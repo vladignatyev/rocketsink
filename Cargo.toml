@@ -19,3 +19,12 @@ features = ["deadpool_redis"]
 [dependencies.serde_json]
 version = "1.0"
 features = ["alloc"]
+
+
+[dev-dependencies]
+criterion = "0.4"
+
+[[bench]]
+name = "json_benchmark"
+harness = false
+

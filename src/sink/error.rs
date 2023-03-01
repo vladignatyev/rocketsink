@@ -1,17 +1,8 @@
-
 use deadpool;
-// extern crate deadpool_redis;
-// use deadpool_redis::{Config, redis::cmd};
-// use deadpool_redis::Pool;
-use rocket::http::ext::IntoCollection;
-use rocket::{Request, Response};
-use rocket::request::{FromRequest, Outcome};
-use rocket::response::{Responder, status};
-use rocket::serde::{Serialize, Serializer};
-use rocket::http::{HeaderMap, Status};
-
-
 use deadpool::managed::PoolError;
+use rocket::{Request, Response};
+use rocket::http::Status;
+use rocket::response::Responder;
 use rocket_db_pools::deadpool_redis::redis::RedisError;
 
 #[derive(Debug)]
