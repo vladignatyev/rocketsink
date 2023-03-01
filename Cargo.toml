@@ -15,3 +15,7 @@ features = ["json"]
 [dependencies.rocket_db_pools]
 version = "0.1.0-rc.2"
 features = ["deadpool_redis"]
+
+[dependencies.serde_json]
+version = "1.0"
+features = ["alloc"]

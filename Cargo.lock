@@ -331,6 +331,7 @@ dependencies = [
  "deadpool",
  "rocket",
  "rocket_db_pools",
+ "serde_json",
 ]
 
 [[package]]
