@@ -1,9 +1,13 @@
 [debug]
 address = "127.0.0.1"
 port = 8001
-debug = 1
-log_level = "debug"
-workers = 16
+debug = 0
+log_level = "critical"
+workers = 64
 
 [debug.databases.redis]
 url = "redis://127.0.0.1:6379/1"
+min_connections = 64
+max_connections = 1024
+connect_timeout = 5
+idle_timeout = 120

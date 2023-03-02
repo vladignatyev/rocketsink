@@ -1,32 +1,22 @@
-use std::net::IpAddr;
-
-use rocket::http::{Status};
-
+use rocket::http::Status;
+use rocket::post;
 #[allow(unused_imports)]
 use rocket_db_pools::deadpool_redis::redis::{AsyncCommands, cmd};
 
-use crate::sink::data::RequestHeaders;
+use crate::sink::data::SinkRecord;
 use crate::sink::db::StreamDb;
 use crate::sink::error::SinkError;
 
-use rocket::post;
-
 #[post("/<stream_name>")]
 pub async fn sink_route(stream_db: &StreamDb,
-                    stream_name: &str,
-                    request_headers: RequestHeaders,
-                    ipaddr: IpAddr) -> Result<Status, SinkError> {
-    let items: [(&str, String); 2] = [
-        ("headers", request_headers.json.to_string()),
-        ("ip", ipaddr.to_string())
-    ];
-
+                        stream_name: &str,
+                        sink_data: SinkRecord) -> Result<Status, SinkError> {
     let mut conn = stream_db.get().await?;
 
     cmd("XADD")
         .arg(stream_name)
         .arg("*")
-        .arg(&items)
+        .arg(&sink_data.data)
         .query_async::<_, ()>(&mut conn)
         .await?;
 
