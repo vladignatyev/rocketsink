@@ -25,17 +25,18 @@ impl<'r> FromRequest<'r> for SinkRecord {
     type Error = ();
 
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
-        let ip_key: &'static str = "ip";
-        let time_key: &'static str = "time";
-        let data_key: &'static str = "data";
+        const IP_KEY: &'static str = "ip";
+        const TIME_KEY: &'static str = "time";
+        const DATA_KEY: &'static str = "data";
+        const IP_DEFAULT: Ipv4Addr = Ipv4Addr::new(0, 0, 0, 0);
 
-        let ip = request.client_ip().unwrap_or(IpAddr::from(Ipv4Addr::new(0, 0, 0, 0)));
+        let ip = request.client_ip().unwrap_or(IpAddr::from(IP_DEFAULT));
 
         Outcome::Success(SinkRecord {
             data: [
-                (ip_key, ip.to_string()),
-                (time_key, Utc::now().to_rfc3339().to_string()),
-                (data_key, headermap_to_serde(request.headers()).unwrap_or_default()),
+                (IP_KEY, ip.to_string()),
+                (TIME_KEY, Utc::now().to_rfc3339().to_string()),
+                (DATA_KEY, headermap_to_serde(request.headers()).unwrap_or_default()),
             ]
         })
     }

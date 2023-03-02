@@ -9,8 +9,9 @@ use crate::sink::error::SinkError;
 
 #[post("/<stream_name>")]
 pub async fn sink_route(stream_db: &StreamDb,
+                        sink_data: SinkRecord,
                         stream_name: &str,
-                        sink_data: SinkRecord) -> Result<Status, SinkError> {
+) -> Result<Status, SinkError> {
     let mut conn = stream_db.get().await?;
 
     cmd("XADD")
