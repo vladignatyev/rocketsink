@@ -3,7 +3,7 @@ address = "127.0.0.1"
 port = 8001
 debug = 0
 log_level = "critical"
-workers = 128
+workers = 16
 
 [debug.databases.redis]
 #url = "redis://127.0.0.1:6379/1"
