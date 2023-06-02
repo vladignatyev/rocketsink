@@ -1,11 +1,10 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
 
 extern crate eventsink;
 
-use eventsink::sink::data::{headermap_to_json_string, RequestHeaders};
-use rocket::{Request, Response};
+use eventsink::sink::data::headermap_to_serde;
 use rocket::http::HeaderMap;
-use rocket::request::FromRequest;
+
 
 fn criterion_benchmark(c: &mut Criterion) {
     let mut header = HeaderMap::new();
@@ -16,7 +15,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     header.add_raw("content-type","application/json");
 
     c.bench_function("json_benchmark", |b| b.iter(||
-        headermap_to_json_string(&header).unwrap()
+        headermap_to_serde(&header).unwrap()
     ));
 }
 
